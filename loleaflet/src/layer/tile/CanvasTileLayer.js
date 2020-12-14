@@ -91,6 +91,12 @@ L.CanvasTilePainter = L.Class.extend({
 		this._canvasCtx.msImageSmoothingEnabled = false;
 		var mapSize = this._map.getPixelBoundsCore().getSize();
 		this._lastMapSize = mapSize;
+
+		this._offscreenCanvas = document.createElement('canvas');
+		this._oscCtx = this._offscreenCanvas.getContext('2d', { alpha: false });
+		this._oscCtx.imageSmoothingEnabled = false;
+		this._oscCtx.msImageSmoothingEnabled = false;
+
 		this._setCanvasSize(mapSize.x, mapSize.y);
 		this._canvasCtx.setTransform(1,0,0,1,0,0);
 	},
@@ -102,6 +108,8 @@ L.CanvasTilePainter = L.Class.extend({
 		// real pixels have to be integral
 		this._canvas.width = this._pixWidth;
 		this._canvas.height = this._pixHeight;
+		this._offscreenCanvas.width = this._pixWidth;
+		this._offscreenCanvas.height = this._pixHeight;
 
 		// CSS pixels can be fractional, but need to round to the same real pixels
 		var cssWidth = this._pixWidth / this._dpiScale; // NB. beware
@@ -384,6 +392,79 @@ L.CanvasTilePainter = L.Class.extend({
 		if (this._layer._debug && this.renderBackground)
 			this.renderBackground(this._canvasCtx, ctx);
 	},
+
+	_zoomAnimation: function () {
+		var painter = this;
+		// TODO: do for all panes and for zoom-out case.
+		var paneBounds = this._paintContext().paneBoundsList[0];
+		var paneSize = paneBounds.getSize();
+		var halfSize = paneSize.divideBy(2).ceil();
+
+		var rafFunc = function () {
+
+			// center in canvas (corepx) coordinates.
+			var center = painter._newCenter.subtract(paneBounds.min);
+
+			/* DEBUG: draw center
+			painter._canvasCtx.strokeStyle = 'red';
+			painter._canvasCtx.strokeRect(center.x - 50, center.y - 50, 100, 100);
+			*/
+			center.x = Math.max(center.x, halfSize.x);
+			center.y = Math.max(center.y, halfSize.y);
+
+			var sourceTopLeft = new L.Point(center.x + (-center.x / painter._zoomFrameScale), center.y + (-center.y / painter._zoomFrameScale));
+
+			// Bound checks
+			if (painter._newCenter.x - halfSize.x / painter._zoomFrameScale <= 0)
+				sourceTopLeft.x = 0;
+			if (painter._newCenter.y - halfSize.y / painter._zoomFrameScale <= 0)
+				sourceTopLeft.y = 0;
+
+			painter._canvasCtx.drawImage(painter._offscreenCanvas,
+				sourceTopLeft.x, sourceTopLeft.y,
+				// sourceWidth, sourceHeight
+				paneSize.x / painter._zoomFrameScale, paneSize.y / painter._zoomFrameScale,
+				// destX, destY
+				0, 0,
+				// destWidth, destHeight
+				paneSize.x, paneSize.y);
+
+			painter._zoomRAF = requestAnimationFrame(rafFunc);
+		};
+		rafFunc();
+	},
+
+	zoomStep: function (zoom, newCenter) {
+		zoom = this._map._limitZoom(zoom);
+		var origZoom = this._map.getZoom();
+		// Compute relative-multiplicative scale of this zoom-frame w.r.t the starting zoom(ie the current Map's zoom).
+		this._zoomFrameScale = this._map.zoomToFactor(zoom - origZoom + this._map.options.zoom);
+
+		//console.log('zoomStep: zoom = ' + zoom + ' origZoom = ' + origZoom + ' zoomFrameScale = ' + this._zoomFrameScale);
+		if (!this._inZoomAnim) {
+			this._inZoomAnim = true;
+			this._newCenter = this._map.project(newCenter).multiplyBy(this._dpiScale); // in core pixels
+
+			// TODO: Keep oscanvas always updated as tiles arrive (including the border ones) so we don't have to copy when zoom starts.
+			this._oscCtx.drawImage(this._canvas,
+				0, 0,
+				this._pixWidth, this._pixHeight,
+				0, 0,
+				this._pixWidth, this._pixHeight);
+			// console.log('zoomStep: first one : w = ' + this._pixWidth + ' h = ' + this._pixHeight);
+			// Start RAF loop for zoom-animation
+			this._zoomAnimation();
+		}
+	},
+
+	zoomStepEnd: function () {
+		this._zoomFrameScale = undefined;
+		console.log('zoomStepEnd: zoomFrameScale set to undefined.');
+		if (this._inZoomAnim) {
+			cancelAnimationFrame(this._zoomRAF);
+			this._inZoomAnim = false;
+		}
+	}
 });
 
 L.CanvasTileLayer = L.TileLayer.extend({
@@ -546,6 +627,15 @@ L.CanvasTileLayer = L.TileLayer.extend({
 		};
 
 		return events;
+	},
+
+	// zoom is the new intermediate zoom level (log scale : 1 to 14)
+	zoomStep: function (zoom, newCenter) {
+		this._painter.zoomStep(zoom, newCenter);
+	},
+
+	zoomStepEnd: function () {
+		this._painter.zoomStepEnd();
 	},
 
 	_removeSplitters: function () {
