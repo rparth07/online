@@ -51,7 +51,7 @@
 #  include <execinfo.h>
 #endif
 
-#if !defined(ANDROID) && !defined(IOS) && !defined(__FreeBSD__)
+#if !defined(ANDROID) && !defined(IOS) && !defined(MACOS) && !defined(__FreeBSD__)
 #  include <sys/prctl.h>
 #endif
 #if defined(__FreeBSD__)
