@@ -727,6 +727,10 @@ if test \( "$enable_iosapp" = "yes" -a `uname -s` = "Darwin" \) -o \( "$enable_w
       fi
    fi
 
+   if test "$enable_windowsapp" = "yes" ; then
+      LOBUILDDIR_WINDOWS=`cd "$LOBUILDDIR" && cmd.exe /c cd | tr '\\' '/' | tr -d '\r'`
+   fi
+
    AC_MSG_CHECKING([for Poco include directory to build against])
    if test -z "$with_poco_includes"; then
       AC_MSG_ERROR([You MUST use the --with-poco-includes option when configuring the mobile or Windows app build tree.])
@@ -757,6 +761,10 @@ if test \( "$enable_iosapp" = "yes" -a `uname -s` = "Darwin" \) -o \( "$enable_w
    CHK_FILE_VAR(POCOINCLUDE,Poco/Poco.h,Poco include,_ARM64_V8A)
    CHK_FILE_VAR(POCOINCLUDE,Poco/Poco.h,Poco include,_X86)
    CHK_FILE_VAR(POCOINCLUDE,Poco/Poco.h,Poco include,_X86_64)
+
+   if test "$enable_windowsapp" = "yes" ; then
+      POCOINCLUDE_WINDOWS=`cd "$POCOINCLUDE" && cmd.exe /c cd | tr '\\' '/' | tr -d '\r'`
+   fi
 
    AC_MSG_CHECKING([for Poco lib directory to build against])
    if test -z "$with_poco_libs"; then
@@ -791,6 +799,10 @@ if test \( "$enable_iosapp" = "yes" -a `uname -s` = "Darwin" \) -o \( "$enable_w
       CHK_FILE_VAR(POCOLIB,libPocoFoundation.a,Poco lib,_ARM64_V8A)
       CHK_FILE_VAR(POCOLIB,libPocoFoundation.a,Poco lib,_X86)
       CHK_FILE_VAR(POCOLIB,libPocoFoundation.a,Poco lib,_X86_64)
+   fi
+
+   if test "$enable_windowsapp" = "yes" ; then
+      POCOLIB_WINDOWS=`cd "$POCOLIB" && cmd.exe /c cd | tr '\\' '/' | tr -d '\r'`
    fi
 
    if test "$ENABLE_DEBUG" = "true" ; then
@@ -864,6 +876,7 @@ fi
 
 AC_SUBST(LOSOURCEDIR)
 AC_SUBST(LOBUILDDIR)
+AC_SUBST(LOBUILDDIR_WINDOWS)
 AC_SUBST(ANDROID_ABI)
 AC_SUBST(ANDROID_ABI_SPLIT)
 AC_SUBST(LOBUILDDIR_ARM64_V8A)
@@ -873,10 +886,12 @@ AC_SUBST(POCOINCLUDE)
 AC_SUBST(POCOINCLUDE_ARM64_V8A)
 AC_SUBST(POCOINCLUDE_X86)
 AC_SUBST(POCOINCLUDE_X86_64)
+AC_SUBST(POCOINCLUDE_WINDOWS)
 AC_SUBST(POCOLIB)
 AC_SUBST(POCOLIB_ARM64_V8A)
 AC_SUBST(POCOLIB_X86)
 AC_SUBST(POCOLIB_X86_64)
+AC_SUBST(POCOLIB_WINDOWS)
 AC_SUBST(POCODEBUG)
 AC_SUBST(ZSTDINCLUDE)
 AC_SUBST(ZSTDINCLUDE_ARM64_V8A)
@@ -2051,7 +2066,8 @@ if test "$enable_macosapp" = "yes"; then
 fi
 
 if test "$enable_windowsapp" = "yes"; then
-    AC_CONFIG_FILES([windows/coda/config.h])
+    AC_CONFIG_FILES([windows/coda/config.h
+                     windows/coda/config.props])
 fi
 
 if test "$enable_androidapp" = "yes"; then
