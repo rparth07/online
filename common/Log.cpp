@@ -35,7 +35,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#ifndef _WINDOWS
 #include <unistd.h>
+#endif
 #include <unordered_map>
 
 namespace
