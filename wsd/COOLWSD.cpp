@@ -100,11 +100,14 @@
 #include <string>
 #include <thread>
 
-#include <sys/resource.h>
 #include <sys/types.h>
+
+#ifndef _WINDOWS
+#include <sys/resource.h>
 #include <sys/wait.h>
 #include <sysexits.h>
 #include <unistd.h>
+#endif
 
 using Poco::Util::LayeredConfiguration;
 using Poco::Util::Option;
@@ -2130,7 +2133,7 @@ void COOLWSD::innerInitialize(Poco::Util::Application& self)
         COOLWSD::MaxDocuments = COOLWSD::MaxConnections;
     }
 
-#if !WASMAPP
+#if !WASMAPP && !defined(_WINDOWS)
     struct rlimit rlim;
     ::getrlimit(RLIMIT_NOFILE, &rlim);
     LOG_INF("Maximum file descriptor supported by the system: " << rlim.rlim_cur - 1);

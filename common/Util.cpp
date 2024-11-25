@@ -43,21 +43,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <dirent.h>
-#include <fcntl.h>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <mutex>
 #include <random>
-#include <spawn.h>
 #include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/uio.h>
 #include <thread>
-#include <unistd.h>
 
 #ifndef COOLWSD_BUILDCONFIG
 #define COOLWSD_BUILDCONFIG
@@ -67,7 +62,7 @@
 #include <SigHandlerTrap.hpp>
 #endif
 
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
+#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__) && !defined(_WINDOWS)
 #  include <execinfo.h>
 #  include <cxxabi.h>
 #endif
@@ -81,6 +76,14 @@
 #  include <sys/thr.h>
 #elif defined IOS
 #import <Foundation/Foundation.h>
+#endif
+
+#ifndef _WINDOWS
+#include <sys/uio.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <spawn.h>
 #endif
 
 #if defined __GLIBC__

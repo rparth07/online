@@ -37,6 +37,8 @@
 #include <string>
 #ifndef _WINDOWS
 #include <unistd.h>
+#else
+#include <cstdio>
 #endif
 #include <unordered_map>
 
@@ -145,6 +147,7 @@ namespace Log
         /// Write the given buffer to stderr directly.
         static inline std::size_t writeRaw(const char* data, std::size_t count)
         {
+#ifndef _WINDOWS
 #if WASMAPP
             // In WASM, stdout works best.
             constexpr int LOG_FILE_FD = STDOUT_FILENO;
@@ -170,6 +173,10 @@ namespace Log
                 count -= wrote;
             }
             return ptr - data;
+#else // _WINDOWS
+            fwrite(data, size, 1, stderr);
+            return size;
+#endif
         }
 
         template <std::size_t N> inline void writeRaw(const char (&data)[N])
@@ -489,7 +496,7 @@ namespace Log
     char* prefix(const std::chrono::time_point<std::chrono::system_clock>& tp, char* buffer,
                  const std::string_view level)
     {
-#if defined(IOS) || defined(__FreeBSD__)
+#if defined(IOS) || defined(__FreeBSD__) || defined(_WINDOWS)
         // Don't bother with the "Source" which would be just "Mobile" always (or whatever the app
         // process is called depending on platform and configuration) and non-informative as there
         // is just one process in the app anyway.

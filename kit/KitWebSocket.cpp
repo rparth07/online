@@ -31,8 +31,11 @@
 #include <Poco/URI.h>
 
 #include <sys/types.h>
+
+#ifndef _WINDOWS
 #include <sys/wait.h>
 #include <sysexits.h>
+#endif
 
 using Poco::Exception;
 
