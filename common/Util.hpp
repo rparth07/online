@@ -40,6 +40,12 @@
 #include <thread>
 #include <utility>
 
+#if !HAVE_PIPE2
+#include <cstdio>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+
 #define STRINGIFY(X) #X
 
 #if CODE_COVERAGE
@@ -1473,6 +1479,58 @@ inline std::ostream& operator<<(std::ostream& os, const Poco::Net::HTTPRequest& 
     Util::joinPair(os, request, " / ");
     return os;
 }
+
+#if !HAVE_PIPE2
+/// Implementation of pipe2() for platforms that don't have it (like macOS)
+inline int pipe2(int pipefd[2], int flags)
+{
+    if (pipe(pipefd) < 0)
+        return -1;
+
+    // If the user wants O_CLOEXEC, set FD_CLOEXEC on both ends
+    if (flags & O_CLOEXEC)
+    {
+        int fd_flags;
+        for (int i = 0; i < 2; i++)
+        {
+            fd_flags = fcntl(pipefd[i], F_GETFD);
+            if (fd_flags == -1)
+                goto error;
+
+            fd_flags |= FD_CLOEXEC;
+            if (fcntl(pipefd[i], F_SETFD, fd_flags) == -1)
+                goto error;
+        }
+    }
+
+    // If the user wants O_NONBLOCK, set O_NONBLOCK on both ends
+    if (flags & O_NONBLOCK)
+    {
+        int fl_flags;
+        for (int i = 0; i < 2; i++)
+        {
+            fl_flags = fcntl(pipefd[i], F_GETFL);
+            if (fl_flags == -1)
+                goto error;
+
+            fl_flags |= O_NONBLOCK;
+            if (fcntl(pipefd[i], F_SETFL, fl_flags) == -1)
+                goto error;
+        }
+    }
+
+    return 0;
+
+error:
+    {
+        int saved_errno = errno;
+        close(pipefd[0]);
+        close(pipefd[1]);
+        errno = saved_errno;
+    }
+    return -1;
+}
+#endif
 
 // std::to_underlying will be available in C++23
 template <typename Enum> constexpr std::underlying_type_t<Enum> to_underlying(Enum e)
