@@ -43,7 +43,9 @@
 #if !HAVE_PIPE2
 #include <cstdio>
 #include <fcntl.h>
+#ifndef _WINDOWS
 #include <unistd.h>
+#endif
 #endif
 
 #define STRINGIFY(X) #X
@@ -1480,7 +1482,7 @@ inline std::ostream& operator<<(std::ostream& os, const Poco::Net::HTTPRequest& 
     return os;
 }
 
-#if !HAVE_PIPE2
+#if !MOBILEAPP && !HAVE_PIPE2
 /// Implementation of pipe2() for platforms that don't have it (like macOS)
 inline int pipe2(int pipefd[2], int flags)
 {
