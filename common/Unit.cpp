@@ -30,7 +30,7 @@
 #include <csignal>
 #include <iostream>
 #include <mutex>
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <sysexits.h>
 #endif
 #include <thread>

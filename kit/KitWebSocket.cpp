@@ -32,7 +32,7 @@
 
 #include <sys/types.h>
 
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <sys/wait.h>
 #include <sysexits.h>
 #endif

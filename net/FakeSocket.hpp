@@ -22,7 +22,7 @@
 
 #include <string>
 
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <poll.h>
 #endif
 

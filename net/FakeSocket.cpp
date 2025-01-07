@@ -18,7 +18,7 @@
 #include <config.h>
 
 #include <fcntl.h>
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <poll.h>
 #endif
 

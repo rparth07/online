@@ -62,7 +62,7 @@
 #include <SigHandlerTrap.hpp>
 #endif
 
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__) && !defined(_WINDOWS)
+#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__) && !defined(_WIN32)
 #  include <execinfo.h>
 #  include <cxxabi.h>
 #endif
@@ -78,7 +78,7 @@
 #import <Foundation/Foundation.h>
 #endif
 
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <sys/uio.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -97,7 +97,7 @@
 #include <emscripten/console.h>
 #endif
 
-#ifdef _WINDOWS
+#ifdef _WIN32
 #include <processthreadsapi.h>
 #endif
 
@@ -326,7 +326,7 @@ namespace Util
         LOG_INF("Thread " << getThreadId() << ") is now called [" << s << ']');
 #elif defined __EMSCRIPTEN__
         emscripten_console_logf("COOL thread name: \"%s\"", s.c_str());
-#elif defined _WINDOWS
+#elif defined _WIN32
         SetThreadDescription(GetCurrentThread(), string_to_wide_string(s).c_str());
         LOG_INF("Thread " << getThreadId() << ") is now called [" << s << ']');
 #endif

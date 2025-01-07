@@ -55,7 +55,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifndef _WINDOWS
+#ifndef _WIN32
 #include <sysexits.h>
 #include <unistd.h>
 #include <sys/un.h>
