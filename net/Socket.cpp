@@ -1315,7 +1315,7 @@ std::shared_ptr<Socket> ServerSocket::accept()
 
     struct sockaddr_in6 clientInfo;
     socklen_t addrlen = sizeof(clientInfo);
-    const int rc = ::accept4(getFD(), (struct sockaddr *)&clientInfo, &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    const int rc = Syscall::accept_cloexec_nonblock(getFD(), (struct sockaddr *)&clientInfo, &addrlen);
     if (rc < 0)
     {
         if (isUnrecoverableAcceptError(errno))
@@ -1421,7 +1421,7 @@ bool Socket::isLocal() const
 
 std::shared_ptr<Socket> LocalServerSocket::accept()
 {
-    const int rc = ::accept4(getFD(), nullptr, nullptr, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    const int rc = Syscall::accept_cloexec_nonblock(getFD(), nullptr, nullptr);
     if (rc < 0)
     {
         if (isUnrecoverableAcceptError(errno))
