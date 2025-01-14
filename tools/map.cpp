@@ -25,7 +25,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#ifndef __FreeBSD__
+#ifdef __linux__
 #include <error.h>
 #endif
 #include <fcntl.h>
