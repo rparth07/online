@@ -53,6 +53,7 @@
 #include <memory>
 #include <string>
 
+#if MOBILEAPP
 #ifdef IOS
 #include <ios.h>
 #elif defined(MACOS)
@@ -63,7 +64,10 @@
 #include <windows.hpp>
 #elif defined(GTKAPP)
 #include <gtk.hpp>
-#endif // IOS
+#elif WASMAPP
+#include <wasmapp.hpp>
+#endif
+#endif // MOBILEAPP
 
 #if ENABLE_LOCAL_FILESYSTEM
 bool StorageBase::FilesystemEnabled;
