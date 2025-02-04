@@ -556,6 +556,7 @@ bool isMountNamespacesEnabled()
 }
 
 
+#if ENABLE_CHILDROOTS
 namespace SysTemplate
 {
 /// The network and other system files we need to keep up-to-date in jails.
@@ -763,6 +764,7 @@ void setupRandomDeviceLinks(const std::string& sysTemplate)
 }
 
 } // namespace SysTemplate
+#endif // ENABLE_CHILDROOTS
 
 } // namespace JailUtil
 

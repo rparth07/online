@@ -1272,6 +1272,7 @@ void COOLWSD::setupChildRoot(const bool UseMountNamespaces)
     JailUtil::disableBindMounting(); // Default to assume failure
     JailUtil::disableMountNamespaces();
 
+#if ENABLE_CHILDROOTS
     Log::preFork();
 
     pid_t pid = fork();
@@ -1350,6 +1351,9 @@ void COOLWSD::setupChildRoot(const bool UseMountNamespaces)
         JailUtil::enableBindMountingConfigured();
     else
         JailUtil::disableBindMountingConfigured();
+#else
+    (void) UseMountNamespaces;
+#endif
 }
 
 #endif
