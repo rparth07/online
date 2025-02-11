@@ -775,7 +775,12 @@ std::string COOLWSD::TmpFontDir;
 std::string COOLWSD::LOKitVersion;
 std::string COOLWSD::LOKitVersionNumber;
 std::string COOLWSD::LOKitVersionHash;
-std::string COOLWSD::ConfigFile = COOLWSD_CONFIGDIR "/coolwsd.xml";
+std::string COOLWSD::ConfigFile =
+#ifndef MACOS
+    COOLWSD_CONFIGDIR "/coolwsd.xml";
+#else
+    getResourcePath("coolwsd", "xml");
+#endif
 std::string COOLWSD::ConfigDir = COOLWSD_CONFIGDIR "/conf.d";
 bool COOLWSD::EnableTraceEventLogging = false;
 bool COOLWSD::EnableAccessibility = false;
