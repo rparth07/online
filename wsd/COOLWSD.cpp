@@ -776,10 +776,10 @@ std::string COOLWSD::LOKitVersion;
 std::string COOLWSD::LOKitVersionNumber;
 std::string COOLWSD::LOKitVersionHash;
 std::string COOLWSD::ConfigFile =
-#ifndef MACOS
-    COOLWSD_CONFIGDIR "/coolwsd.xml";
-#else
+#if defined(MACOS) && ENABLE_CODA
     getResourcePath("coolwsd", "xml");
+#else
+    COOLWSD_CONFIGDIR "/coolwsd.xml";
 #endif
 std::string COOLWSD::ConfigDir = COOLWSD_CONFIGDIR "/conf.d";
 bool COOLWSD::EnableTraceEventLogging = false;
