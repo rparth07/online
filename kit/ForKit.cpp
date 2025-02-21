@@ -33,6 +33,7 @@
 #include <kit/DeltaSimd.h>
 #include <kit/Kit.hpp>
 #include <kit/SetupKitEnvironment.hpp>
+#include <net/ServerSocket.hpp>
 
 #include <Poco/Path.h>
 #include <Poco/URI.h>
@@ -916,7 +917,7 @@ int forkit_main(int argc, char** argv)
         else if (std::strstr(cmd, "--masterport=") == cmd)
         {
             eq = std::strchr(cmd, '=');
-            MasterLocation = std::string(eq+1);
+            MasterLocation = UnxSocketPath(std::string(eq+1));
         }
         else if (std::strstr(cmd, "--version") == cmd)
         {
