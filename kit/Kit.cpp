@@ -2877,7 +2877,6 @@ void flushTraceEventRecordings()
     }
 }
 
-#if !ENABLE_CODA // ie. normal server
 static void addRecording(const std::string &recording, bool force)
 {
     // This can be called before the config system is initialized. Guard against that, as calling
@@ -2915,7 +2914,6 @@ void TraceEvent::emitOneRecording(const std::string &recording)
 {
     addRecording(recording, false);
 }
-#endif // !ENABLE_CODA
 
 #else
 
