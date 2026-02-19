@@ -200,6 +200,22 @@ eclipsesettingfile.xml
 *.code-workspace
 Makecache
 
+# assistants
+.ai
+.ai-cache
+*.ai.md
+CLAUDE.md
+claude.log
+.claude
+.cursor
+.cursorignore
+.copilot
+copilot.json
+.aider
+.aider.conf.yml
+.aider.history
+.continue
+
 # autoconf stuff
 autogen.input
 
