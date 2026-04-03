@@ -201,6 +201,7 @@ class TableStylesService {
 		return {
 			id: 'tablestyles_design-iconview-list',
 			type: 'iconviewlist',
+			accessibility: { focusBack: false, combination: 'TL', de: null },
 			children: [
 				{
 					id: 'tablestyles_design',
